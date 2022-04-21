@@ -3,13 +3,13 @@ import * as jwt from 'jsonwebtoken'
 import * as bcrypt from 'bcryptjs'
 
 export interface UserAttributes {
-    user_id: number,
+    user_id?: number,
     username: string,
     password: string,
     email: string,
-    role: 'USER' | 'ADMIN',
-    is_enabled: boolean,
-    is_blocked: boolean,
+    role?: 'USER' | 'ADMIN',
+    is_enabled?: boolean,
+    is_blocked?: boolean,
     createdAt?: Date,
     updatedAt?: Date,
 }
@@ -25,7 +25,7 @@ export type UserStatic = typeof Model & {
 }
 
 export function UserFactory(sequelize: Sequelize): UserStatic {
-    return <UserStatic>sequelize.define("users", {
+    const User = <UserStatic>sequelize.define("users", {
         user_id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
@@ -68,4 +68,16 @@ export function UserFactory(sequelize: Sequelize): UserStatic {
             defaultValue: DataTypes.NOW,
         }
     })
+
+    User.beforeValidate(async function (user) {
+        const salt = await bcrypt.genSalt(10)
+        user.password = await bcrypt.hash(user.password, salt)
+    })
+
+    User.prototype.comparePassword = async function (candidatePassword: string): Promise<boolean> {
+        return await bcrypt.compare(candidatePassword, this.password)
+    }
+
+    return User
 }
+

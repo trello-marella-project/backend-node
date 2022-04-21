@@ -1,33 +1,37 @@
-import {Request, Response} from 'express'
-import express from 'express'
-import {dbConfig} from './utils/connect'
-import dotenv from 'dotenv'
-import logger from './utils/logger'
+import { Request, Response } from "express";
+import express from "express";
+import { dbConfig } from "./utils/connect";
+import dotenv from "dotenv";
+import logger from "./utils/logger";
+import authRoutes from "./routes/auth.route";
 
-dotenv.config()
+dotenv.config();
 
-require('express-async-errors');
+require("express-async-errors");
 
-const app = express()
+const app = express();
 
-app.get('/', (req: Request, res: Response) => {
-    (res as any).send('meow')
-})
+app.use(express.json());
+app.use("/api/auth", authRoutes);
 
-const PORT = process.env.PORT
+
+app.get("/", (req: Request, res: Response) => {
+  (res as any).send("meow");
+});
+
+const PORT = process.env.PORT;
 
 const start = async () => {
-    try {
-        await dbConfig.authenticate()
-        await dbConfig.sync()
-        logger.info('DB connected')
-        app.listen(PORT, () => {
-            logger.info(`Server started on port ${PORT}`)
-        })
-    } catch (error) {
-        logger.error(error)
-    }
-}
+  try {
+    await dbConfig.authenticate();
+    await dbConfig.sync();
+    logger.info("DB connected");
+    app.listen(PORT, () => {
+      logger.info(`Server started on port ${PORT}`);
+    });
+  } catch (error) {
+    logger.error(error);
+  }
+};
 
-start()
-
+start();
