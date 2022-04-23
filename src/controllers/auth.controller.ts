@@ -18,4 +18,12 @@ const register = async (
   res.status(200);
 };
 
+const activateUser = async (req: Request, res: Response) => {
+  res.send("meow");
+};
+
+const activateUser = async (req: Request, res: Response) => {
+  res.send("meow");
+};
+
 export { register };
