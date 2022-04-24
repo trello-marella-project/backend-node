@@ -3,11 +3,11 @@ import * as uuid from "uuid";
 import { User } from "../utils/connect";
 import { UserAttributes } from "../models/user.module";
 import { BadRequestError } from "../errors";
-import { MailService } from "./mail.service";
+import MailService from "./mail.service";
 import { TokenService } from "./token.service";
 
 class UserService {
-  static async register(
+  async register(
     input: Pick<UserAttributes, "password" | "username" | "email">
   ) {
     // check username and email unique
@@ -28,20 +28,22 @@ class UserService {
     const activationLink = uuid.v4();
     await MailService.sendActivationMail({
       email: input.email,
-      link: activationLink,
+      link: `${process.env.API_URL}/api/auth/activate/${activationLink}`,
     });
 
-    const user = await this.createUser({ ...input });
-
-    return { user };
+    //const user = await this.createUser({ ...input });
   }
 
-  static async login() {
+  async login() {
     const tokens = TokenService.generateTokens({});
     await TokenService.saveToken({ user_id: 1, token: tokens.refreshToken });
   }
 
-  static async createUser(
+  async activate(activationLink: string) {
+
+  }
+
+  async createUser(
     input: Pick<UserAttributes, "password" | "username" | "email">
   ) {
     try {
@@ -52,4 +54,4 @@ class UserService {
   }
 }
 
-export { UserService };
+export default new UserService();

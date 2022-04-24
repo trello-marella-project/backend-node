@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { RegisterUserInput } from "../schema/user.schema";
-import { UserService } from "../service/user.service";
+import UserService from "../service/user.service";
 import { omit, pick } from "lodash";
 import logger from "../utils/logger";
 

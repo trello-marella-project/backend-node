@@ -1,10 +1,10 @@
 import { Request, Response } from "express";
 import express from "express";
-import { dbConfig } from "./utils/connect";
 import dotenv from "dotenv";
 import logger from "./utils/logger";
 import authRoutes from "./routes/auth.route";
 import cookieParser from "cookie-parser";
+import { dbConfig } from "./utils/connect";
 
 dotenv.config();
 

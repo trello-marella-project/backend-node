@@ -1,7 +1,7 @@
 import { TokenAttributes } from "../models/token.module";
 import logger from "../utils/logger";
 import { signJwt } from "../utils/jwt.utils";
-import { Token } from "utils/connect";
+import { Token } from "../utils/connect";
 
 class TokenService {
   static generateTokens(payload: any): {
