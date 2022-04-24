@@ -23,7 +23,7 @@ export function TokenFactory(sequelize: Sequelize): TokenStatic {
     user_id: {
       type: DataTypes.INTEGER,
       references: {
-        model: "User",
+        model: "users",
         key: "user_id",
       },
     },

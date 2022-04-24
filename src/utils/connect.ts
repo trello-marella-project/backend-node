@@ -18,11 +18,13 @@ const dbConfig = new Sequelize(
 );
 
 const User = UserFactory(dbConfig);
-// const Token = TokenFactory(dbConfig);
+const Token = TokenFactory(dbConfig);
+
+// User.hasOne(User);
 
 // User.hasMay(Skills);
 //
 // or instead of that, maybe many users have many skills
 // Skills.belongsToMany(Users, { through: "users_have_skills" });
 
-export { dbConfig, User };
+export { dbConfig, User, Token };
