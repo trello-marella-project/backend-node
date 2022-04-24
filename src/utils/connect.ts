@@ -3,6 +3,7 @@ import { Sequelize } from "sequelize";
 import dotenv from "dotenv";
 import { UserFactory } from "../models/user.module";
 import { TokenFactory } from "../models/token.module";
+import { LinkFactory } from "../models/link.module";
 
 dotenv.config();
 
@@ -19,6 +20,7 @@ const dbConfig = new Sequelize(
 
 const User = UserFactory(dbConfig);
 const Token = TokenFactory(dbConfig);
+const ActivationLink = LinkFactory(dbConfig);
 
 // User.hasOne(User);
 
@@ -27,4 +29,4 @@ const Token = TokenFactory(dbConfig);
 // or instead of that, maybe many users have many skills
 // Skills.belongsToMany(Users, { through: "users_have_skills" });
 
-export { dbConfig, User, Token };
+export { dbConfig, User, Token, ActivationLink };
