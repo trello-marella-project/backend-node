@@ -4,7 +4,7 @@ import { ActivationLink, User } from "../utils/connect";
 import { UserAttributes } from "../models/user.module";
 import { BadRequestError, NotFoundError } from "../errors";
 import MailService from "./mail.service";
-import { TokenService } from "./token.service";
+import TokenService from "./token.service";
 import logger from "../utils/logger";
 
 class UserService {

@@ -4,7 +4,7 @@ import { signJwt } from "../utils/jwt.utils";
 import { Token } from "../utils/connect";
 
 class TokenService {
-  static generateTokens(payload: any): {
+  generateTokens(payload: any): {
     accessToken: string;
     refreshToken: string;
   } {
@@ -24,7 +24,7 @@ class TokenService {
     };
   }
 
-  static async saveToken(input: Pick<TokenAttributes, "token" | "user_id">) {
+  async saveToken(input: Pick<TokenAttributes, "token" | "user_id">) {
     try {
       const tokenData = await Token.findOne({
         where: { user_id: input.user_id },
@@ -39,9 +39,9 @@ class TokenService {
     }
   }
 
-  static async findToken(token: string) {
+  async findToken(token: string) {
     return await Token.findOne({ where: { token } });
   }
 }
 
-export { TokenService };
+export default new TokenService();

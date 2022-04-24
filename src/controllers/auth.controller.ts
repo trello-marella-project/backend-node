@@ -12,7 +12,7 @@ const register = async (
     await UserService.register(req.body);
     res.status(200).send("OK");
   } catch (error: any) {
-    console.log(error);
+    logger.error(error);
     res.status(409).send(error.message);
   }
 };
@@ -32,7 +32,7 @@ const activateUser = async (req: Request, res: Response) => {
     await UserService.activate(activationLink);
     res.redirect(process.env.CLIENT_URL as string);
   } catch (error: any) {
-    console.log(error);
+    logger.error(error);
   }
 };
 
