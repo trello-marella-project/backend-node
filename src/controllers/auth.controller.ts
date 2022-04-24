@@ -27,7 +27,13 @@ const login = async (req: Request, res: Response) => {
 };
 
 const activateUser = async (req: Request, res: Response) => {
-  res.send("meow");
+  try {
+    const activationLink = req.params.link;
+    await UserService.activate(activationLink);
+    res.redirect(process.env.CLIENT_URL as string);
+  } catch (error: any) {
+    console.log(error);
+  }
 };
 
 const refresh = async (req: Request, res: Response) => {
