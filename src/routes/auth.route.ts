@@ -1,5 +1,5 @@
 import * as express from "express";
-import { register } from "../controllers/user.controller";
+import { register } from "../controllers/auth.controller";
 import validateResource from "../middleware/validate-resource";
 import { registerUserSchema } from "../schema/user.schema";
 
