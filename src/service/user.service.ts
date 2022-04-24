@@ -6,6 +6,8 @@ import { BadRequestError, NotFoundError } from "../errors";
 import MailService from "./mail.service";
 import TokenService from "./token.service";
 import logger from "../utils/logger";
+import * as bcrypt from "bcryptjs";
+import { UserDto } from "../dtos/user-dto";
 
 class UserService {
   async register(
@@ -41,9 +43,31 @@ class UserService {
     });
   }
 
-  async login() {
-    const tokens = TokenService.generateTokens({});
-    await TokenService.saveToken({ user_id: 1, token: tokens.refreshToken });
+  async login(input: Pick<UserAttributes, "password" | "email">) {
+    const user = await User.findOne({ where: { email: input.email } });
+    if (!user) {
+      throw new BadRequestError(`User with email ${input.email} not found`);
+    }
+
+    const isPasswordCorrect = await bcrypt.compare(
+      input.password,
+      user.password
+    );
+    if (!isPasswordCorrect) {
+      throw new BadRequestError("Password incorrect");
+    }
+
+    const userDto = new UserDto(user);
+    const tokens = TokenService.generateTokens({
+      email: user.email,
+      userId: user.user_id,
+    });
+    await TokenService.saveToken({
+      user_id: user.user_id as number,
+      token: tokens.refreshToken,
+    });
+
+    return { ...tokens, user: { ...userDto } };
   }
 
   async activate(activationLink: string) {

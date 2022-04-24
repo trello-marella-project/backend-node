@@ -1,4 +1,4 @@
-interface CustomApiAttributes {
+export interface CustomApiAttributes {
   statusCode: number;
 }
 

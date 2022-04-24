@@ -5,10 +5,10 @@ import logger from "./utils/logger";
 import authRoutes from "./routes/auth.route";
 import cookieParser from "cookie-parser";
 import { dbConfig } from "./utils/connect";
+import "express-async-errors";
+import { errorHandlerMiddleware } from "./middleware/error-handler";
 
 dotenv.config();
-
-require("express-async-errors");
 
 const app = express();
 
@@ -19,6 +19,8 @@ app.use("/api/auth", authRoutes);
 app.get("/", (req: Request, res: Response) => {
   (res as any).send("meow");
 });
+
+app.use(errorHandlerMiddleware);
 
 const PORT = process.env.PORT;
 
