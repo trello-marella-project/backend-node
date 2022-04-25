@@ -1,11 +1,6 @@
 import { TokenAttributes } from "../models/token.module";
-import { signJwt } from "../utils/jwt.utils";
+import { PayloadI, signJwt } from "../utils/jwt.utils";
 import { Token } from "../utils/connect";
-
-interface PayloadI {
-  email: string;
-  user_id: number;
-}
 
 class TokenService {
   async generateAndSaveTokens(payload: PayloadI) {

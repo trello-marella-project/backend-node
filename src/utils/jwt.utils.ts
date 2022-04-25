@@ -1,7 +1,12 @@
 import jwt from "jsonwebtoken";
 
+export interface PayloadI {
+  email: string;
+  user_id: number;
+}
+
 export const signJwt = (
-  object: Object,
+  object: PayloadI,
   keyName: "JWT_ACCESS_SECRET" | "JWT_REFRESH_SECRET",
   expiresName: "JWT_ACCESS_LIFETIME" | "JWT_REFRESH_LIFETIME"
 ) => {
