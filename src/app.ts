@@ -9,6 +9,7 @@ import { dbConfig } from "./utils/connect";
 
 import { errorHandlerMiddleware } from "./middleware/error-handler";
 import { notFound } from "./middleware/not-found";
+import { deserializeUser } from "./middleware/deserialize-user";
 
 dotenv.config();
 
@@ -16,6 +17,8 @@ const app = express();
 
 app.use(express.json());
 app.use(cookieParser());
+app.use(deserializeUser);
+
 app.use("/api/auth", authRoutes);
 
 app.use(notFound);

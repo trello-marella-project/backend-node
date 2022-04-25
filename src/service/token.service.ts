@@ -1,13 +1,38 @@
 import { TokenAttributes } from "../models/token.module";
-import { PayloadI, signJwt } from "../utils/jwt.utils";
-import { Token } from "../utils/connect";
+import { PayloadI, signJwt, verifyJwt } from "../utils/jwt.utils";
+import { Token, User } from "../utils/connect";
 
 class TokenService {
+  async reIssueAccessToken({ refreshToken }: { refreshToken: string }) {
+    const { decoded } = verifyJwt(refreshToken, "JWT_REFRESH_SECRET");
+    if (!decoded) return false;
+
+    const tokenFromDb = await this.findToken(refreshToken);
+    if (!tokenFromDb) return false;
+
+    const user = await User.findOne({
+      where: { user_id: tokenFromDb.user_id },
+    });
+    if (!user) return false;
+
+    const accessToken = signJwt(
+      {
+        user_id: Number(user.user_id),
+        email: user.email,
+      },
+      "JWT_ACCESS_SECRET",
+      "JWT_ACCESS_LIFETIME"
+    );
+
+    return accessToken;
+  }
+
   async generateAndSaveTokens(payload: PayloadI) {
     const tokens = this.generateTokens({
       email: payload.email,
       user_id: payload.user_id,
     });
+
     await this.saveToken({
       user_id: payload.user_id,
       token: tokens.refreshToken,
