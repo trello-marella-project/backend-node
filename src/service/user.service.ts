@@ -65,7 +65,7 @@ class UserService {
 
     if (!user.is_enabled) {
       throw new CustomApiError(
-        "please confirm your registration by email",
+        "Please confirm your registration by email",
         403
       );
     }
@@ -109,6 +109,7 @@ class UserService {
     }
 
     const userData = verifyJwt(refreshToken, "JWT_REFRESH_SECRET");
+
     const tokenFromDb = await TokenService.findToken(refreshToken);
     if (!userData.valid || !tokenFromDb) {
       throw new UnauthenticatedError("User is not authorized");

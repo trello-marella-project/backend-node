@@ -1,6 +1,7 @@
 import { DataTypes, Sequelize, Model, BuildOptions } from "sequelize";
 
 export interface TokenAttributes {
+  token_id?: number;
   user_id: number;
   token: string;
   createdAt?: Date;
@@ -26,6 +27,9 @@ export function TokenFactory(sequelize: Sequelize): TokenStatic {
         model: "users",
         key: "user_id",
       },
+    },
+    token: {
+      type: DataTypes.STRING,
     },
     createdAt: {
       type: DataTypes.DATE,

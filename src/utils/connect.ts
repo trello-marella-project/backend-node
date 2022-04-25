@@ -3,6 +3,9 @@ import { Sequelize } from "sequelize";
 import { UserFactory } from "../models/user.module";
 import { TokenFactory } from "../models/token.module";
 import { LinkFactory } from "../models/link.module";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const dbConfig = new Sequelize(
   process.env.DB_NAME as string,
