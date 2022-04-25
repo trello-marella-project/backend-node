@@ -1,5 +1,4 @@
 import jwt from "jsonwebtoken";
-import logger from "./logger";
 
 export const signJwt = (
   object: Object,
@@ -23,7 +22,6 @@ export const verifyJwt = (
       decoded,
     };
   } catch (error: any) {
-    logger.error(error);
     return {
       valid: false,
       expired: error.message === "jwt expired",

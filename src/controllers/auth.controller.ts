@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { LoginUserInput, RegisterUserInput } from "../schema/user.schema";
 import UserService from "../service/user.service";
-import { omit, pick } from "lodash";
 
 const register = async (
   req: Request<{}, {}, RegisterUserInput["body"]>,
@@ -48,7 +47,13 @@ const activateUser = async (
 };
 
 const refresh = async (req: Request, res: Response) => {
-  res.send("meow");
+  const refreshToken = req.cookies;
+  const userData = await UserService.refresh(refreshToken);
+  res.cookie("refreshToken", userData.refreshToken, {
+    maxAge: 30 * 24 * 60 * 60 * 1000,
+    httpOnly: true,
+  });
+  return res.status(200).json(userData);
 };
 
 export { register, login, activateUser, refresh };

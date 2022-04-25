@@ -2,12 +2,16 @@ import * as uuid from "uuid";
 
 import { ActivationLink, User } from "../utils/connect";
 import { UserAttributes } from "../models/user.module";
-import { BadRequestError, NotFoundError } from "../errors";
+import {
+  BadRequestError,
+  NotFoundError,
+  UnauthenticatedError,
+} from "../errors";
 import MailService from "./mail.service";
 import TokenService from "./token.service";
 import logger from "../utils/logger";
 import * as bcrypt from "bcryptjs";
-import { UserDto } from "../dtos/user-dto";
+import { verifyJwt } from "../utils/jwt.utils";
 
 class UserService {
   async register(
@@ -57,7 +61,6 @@ class UserService {
       throw new BadRequestError("Password incorrect");
     }
 
-    const userDto = new UserDto(user);
     const tokens = TokenService.generateTokens({
       email: user.email,
       userId: user.user_id,
@@ -67,7 +70,15 @@ class UserService {
       token: tokens.refreshToken,
     });
 
-    return { ...tokens, user: { ...userDto } };
+    return {
+      ...tokens,
+      user: {
+        username: user.username,
+        email: user.email,
+        role: user.role,
+        is_enabled: user.is_enabled,
+      },
+    };
   }
 
   async activate(activationLink: string) {
@@ -84,6 +95,44 @@ class UserService {
     await user!.save();
 
     await link.destroy();
+  }
+
+  async refresh(refreshToken: string) {
+    if (!refreshToken) {
+      throw new UnauthenticatedError("");
+    }
+
+    const userData = verifyJwt(refreshToken, "JWT_REFRESH_SECRET");
+    const tokenFromDb = await TokenService.findToken(refreshToken);
+    if (!userData || !tokenFromDb) {
+      throw new UnauthenticatedError("");
+    }
+
+    const user = await User.findOne({
+      where: { user_id: tokenFromDb.user_id },
+    });
+
+    if (!user) {
+      throw new NotFoundError("");
+    }
+    const tokens = TokenService.generateTokens({
+      email: user.email,
+      userId: user.user_id,
+    });
+    await TokenService.saveToken({
+      user_id: user.user_id as number,
+      token: tokens.refreshToken,
+    });
+
+    return {
+      ...tokens,
+      user: {
+        username: user.username,
+        email: user.email,
+        role: user.role,
+        is_enabled: user.is_enabled,
+      },
+    };
   }
 
   async createUser(
