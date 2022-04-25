@@ -2,9 +2,10 @@ import * as uuid from "uuid";
 import * as bcrypt from "bcryptjs";
 
 import { ActivationLink, User } from "../utils/connect";
-import { UserAttributes } from "../models/user.module";
+import { UserAttributes, UserRoleType } from "../models/user.module";
 import {
   BadRequestError,
+  CustomApiError,
   NotFoundError,
   UnauthenticatedError,
 } from "../errors";
@@ -62,9 +63,17 @@ class UserService {
       throw new BadRequestError("Password incorrect");
     }
 
+    if (!user.is_enabled) {
+      throw new CustomApiError(
+        "please confirm your registration by email",
+        403
+      );
+    }
+
     const tokens = await TokenService.generateAndSaveTokens({
       email: user.email,
       user_id: user.user_id as number,
+      role: user.role as UserRoleType,
     });
 
     return {
@@ -115,6 +124,7 @@ class UserService {
     const tokens = await TokenService.generateAndSaveTokens({
       email: user.email,
       user_id: user.user_id as number,
+      role: user.role as UserRoleType,
     });
 
     return {

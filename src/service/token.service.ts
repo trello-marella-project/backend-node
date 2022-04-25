@@ -1,6 +1,7 @@
 import { TokenAttributes } from "../models/token.module";
 import { PayloadI, signJwt, verifyJwt } from "../utils/jwt.utils";
 import { Token, User } from "../utils/connect";
+import { UserRoleType } from "../models/user.module";
 
 class TokenService {
   async reIssueAccessToken({ refreshToken }: { refreshToken: string }) {
@@ -15,23 +16,19 @@ class TokenService {
     });
     if (!user) return false;
 
-    const accessToken = signJwt(
+    return signJwt(
       {
         user_id: Number(user.user_id),
         email: user.email,
+        role: user.role as UserRoleType,
       },
       "JWT_ACCESS_SECRET",
       "JWT_ACCESS_LIFETIME"
     );
-
-    return accessToken;
   }
 
   async generateAndSaveTokens(payload: PayloadI) {
-    const tokens = this.generateTokens({
-      email: payload.email,
-      user_id: payload.user_id,
-    });
+    const tokens = this.generateTokens({ ...payload });
 
     await this.saveToken({
       user_id: payload.user_id,

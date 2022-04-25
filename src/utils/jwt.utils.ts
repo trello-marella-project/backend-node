@@ -1,8 +1,10 @@
 import jwt from "jsonwebtoken";
+import { UserRoleType } from "../models/user.module";
 
 export interface PayloadI {
   email: string;
   user_id: number;
+  role: UserRoleType;
 }
 
 export const signJwt = (

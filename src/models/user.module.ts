@@ -1,13 +1,14 @@
 import { DataTypes, Sequelize, Model, BuildOptions } from "sequelize";
-import * as jwt from "jsonwebtoken";
 import * as bcrypt from "bcryptjs";
+
+export type UserRoleType = "USER" | "ADMIN";
 
 export interface UserAttributes {
   user_id?: number;
   username: string;
   password: string;
   email: string;
-  role?: "USER" | "ADMIN";
+  role?: UserRoleType;
   is_enabled?: boolean;
   is_blocked?: boolean;
   createdAt?: Date;
