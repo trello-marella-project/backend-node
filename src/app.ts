@@ -1,17 +1,21 @@
 import express from "express";
-import dotenv from "dotenv";
 import "express-async-errors";
 import cookieParser from "cookie-parser";
-
 import logger from "./utils/logger";
-import authRoutes from "./routes/auth.route";
 import { dbConfig } from "./utils/connect";
+import dotenv from "dotenv";
 
+dotenv.config();
+
+// routes import
+import authRoutes from "./routes/auth.route";
+import usersRoutes from "./routes/users.route";
+import userRoutes from "./routes/user.route";
+
+// middleware import
 import { errorHandlerMiddleware } from "./middleware/error-handler";
 import { notFound } from "./middleware/not-found";
 import { deserializeUser } from "./middleware/deserialize-user";
-
-dotenv.config();
 
 const app = express();
 
@@ -20,6 +24,8 @@ app.use(cookieParser());
 app.use(deserializeUser);
 
 app.use("/api/auth", authRoutes);
+app.use("/api/users", usersRoutes);
+app.use("/api/user", userRoutes);
 
 app.use(notFound);
 app.use(errorHandlerMiddleware);
