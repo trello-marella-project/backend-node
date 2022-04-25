@@ -1,4 +1,5 @@
 import * as uuid from "uuid";
+import * as bcrypt from "bcryptjs";
 
 import { ActivationLink, User } from "../utils/connect";
 import { UserAttributes } from "../models/user.module";
@@ -9,15 +10,13 @@ import {
 } from "../errors";
 import MailService from "./mail.service";
 import TokenService from "./token.service";
-import logger from "../utils/logger";
-import * as bcrypt from "bcryptjs";
 import { verifyJwt } from "../utils/jwt.utils";
 
 class UserService {
   async register(
     input: Pick<UserAttributes, "password" | "username" | "email">
   ) {
-    // check username and email unique
+    // check username unique
     const candidateUsername = await User.findOne({
       where: { username: input.username },
     });
@@ -26,20 +25,21 @@ class UserService {
         `User with username ${input.username} already exist`
       );
 
+    // check email unique
     const candidateEmail = await User.findOne({
       where: { email: input.email },
     });
     if (candidateEmail)
       throw new BadRequestError(`User with email ${input.email} already exist`);
 
+    // create link for mail
     const activationLink = uuid.v4();
     await MailService.sendActivationMail({
       email: input.email,
       link: `${process.env.API_URL}/api/auth/activate/${activationLink}`,
     });
 
-    logger.info("activationLink", activationLink);
-
+    // create user
     const user = await this.createUser({ ...input });
     await this.saveActivationLink({
       user_id: user.user_id as number,
@@ -53,6 +53,7 @@ class UserService {
       throw new BadRequestError(`User with email ${input.email} not found`);
     }
 
+    // compare passwords
     const isPasswordCorrect = await bcrypt.compare(
       input.password,
       user.password
@@ -61,13 +62,9 @@ class UserService {
       throw new BadRequestError("Password incorrect");
     }
 
-    const tokens = TokenService.generateTokens({
+    const tokens = await TokenService.generateAndSaveTokens({
       email: user.email,
-      userId: user.user_id,
-    });
-    await TokenService.saveToken({
       user_id: user.user_id as number,
-      token: tokens.refreshToken,
     });
 
     return {
@@ -87,7 +84,7 @@ class UserService {
     });
 
     if (!link) {
-      throw new NotFoundError("Некорректная ссылка для активации");
+      throw new NotFoundError("Invalid activation link");
     }
 
     const user = await User.findOne({ where: { user_id: link.user_id } });
@@ -99,39 +96,29 @@ class UserService {
 
   async refresh(refreshToken: string) {
     if (!refreshToken) {
-      throw new UnauthenticatedError("");
+      throw new UnauthenticatedError("User is not authorized");
     }
 
     const userData = verifyJwt(refreshToken, "JWT_REFRESH_SECRET");
     const tokenFromDb = await TokenService.findToken(refreshToken);
-    if (!userData || !tokenFromDb) {
-      throw new UnauthenticatedError("");
+    if (!userData.valid || !tokenFromDb) {
+      throw new UnauthenticatedError("User is not authorized");
     }
 
     const user = await User.findOne({
       where: { user_id: tokenFromDb.user_id },
     });
-
     if (!user) {
-      throw new NotFoundError("");
+      throw new NotFoundError("User is not found");
     }
-    const tokens = TokenService.generateTokens({
+
+    const tokens = await TokenService.generateAndSaveTokens({
       email: user.email,
-      userId: user.user_id,
-    });
-    await TokenService.saveToken({
       user_id: user.user_id as number,
-      token: tokens.refreshToken,
     });
 
     return {
       ...tokens,
-      user: {
-        username: user.username,
-        email: user.email,
-        role: user.role,
-        is_enabled: user.is_enabled,
-      },
     };
   }
 

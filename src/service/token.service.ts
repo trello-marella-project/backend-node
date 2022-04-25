@@ -1,10 +1,29 @@
 import { TokenAttributes } from "../models/token.module";
-import logger from "../utils/logger";
 import { signJwt } from "../utils/jwt.utils";
 import { Token } from "../utils/connect";
 
+interface PayloadI {
+  email: string;
+  user_id: number;
+}
+
 class TokenService {
-  generateTokens(payload: any): {
+  async generateAndSaveTokens(payload: PayloadI) {
+    const tokens = this.generateTokens({
+      email: payload.email,
+      user_id: payload.user_id,
+    });
+    await this.saveToken({
+      user_id: payload.user_id,
+      token: tokens.refreshToken,
+    });
+
+    return {
+      ...tokens,
+    };
+  }
+
+  generateTokens(payload: PayloadI): {
     accessToken: string;
     refreshToken: string;
   } {
@@ -25,18 +44,14 @@ class TokenService {
   }
 
   async saveToken(input: Pick<TokenAttributes, "token" | "user_id">) {
-    try {
-      const tokenData = await Token.findOne({
-        where: { user_id: input.user_id },
-      });
-      if (tokenData) {
-        tokenData.token = input.token;
-        return await tokenData.save();
-      }
-      return await Token.create({ ...input });
-    } catch (error: any) {
-      logger.error(error);
+    const tokenData = await Token.findOne({
+      where: { user_id: input.user_id },
+    });
+    if (tokenData) {
+      tokenData.token = input.token;
+      return await tokenData.save();
     }
+    return await Token.create({ ...input });
   }
 
   async findToken(token: string) {
