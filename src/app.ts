@@ -11,7 +11,7 @@ dotenv.config();
 // routes import
 import authRoutes from "./routes/auth.route";
 import usersRoutes from "./routes/users.route";
-import userRoutes from "./routes/user.route";
+import spacesRoutes from "./routes/spaces.route";
 
 // middleware import
 import { errorHandlerMiddleware } from "./middleware/error-handler";
@@ -27,7 +27,7 @@ app.use(deserializeUser);
 
 app.use("/api/auth", authRoutes);
 app.use("/api/users", usersRoutes);
-app.use("/api/user", userRoutes);
+app.use("/api/spaces", spacesRoutes);
 
 app.use(notFound);
 app.use(errorHandlerMiddleware);

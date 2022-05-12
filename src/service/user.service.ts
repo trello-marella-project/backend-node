@@ -2,7 +2,7 @@ import * as uuid from "uuid";
 import * as bcrypt from "bcryptjs";
 
 import { ActivationLink, User } from "../utils/connect";
-import { UserAttributes, UserRoleType } from "../models/user.module";
+import { UserAttributes, UserRoleType } from "../models/user.model";
 import {
   BadRequestError,
   CustomApiError,

@@ -1,9 +1,9 @@
 import * as express from "express";
 import { userPermission } from "../middleware/permissions";
-import { checkEmailExistence } from "../controllers/user.controller";
+import { createSpace } from "../controllers/spaces.controller";
 
 const router = express.Router();
 
-router.post("/email", userPermission, checkEmailExistence);
+router.post("/", userPermission, createSpace);
 
 export default router;

@@ -1,4 +1,4 @@
-import { UserAttributes } from "../models/user.module";
+import { UserAttributes } from "../models/user.model";
 
 class UserDto {
   email: string;

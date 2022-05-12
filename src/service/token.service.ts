@@ -1,7 +1,7 @@
-import { TokenAttributes } from "../models/token.module";
+import { TokenAttributes } from "../models/token.model";
 import { PayloadI, signJwt, verifyJwt } from "../utils/jwt.utils";
 import { Token, User } from "../utils/connect";
-import { UserRoleType } from "../models/user.module";
+import { UserRoleType } from "../models/user.model";
 
 class TokenService {
   async reIssueAccessToken({ refreshToken }: { refreshToken: string }) {
