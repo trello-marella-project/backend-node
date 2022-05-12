@@ -4,7 +4,11 @@ import { UserFactory } from "../models/user.model";
 import { TokenFactory } from "../models/token.model";
 import { LinkFactory } from "../models/link.model";
 import { SpaceFactory } from "../models/space.model";
+import { TagFactory } from "../models/tag.model";
+
 import dotenv from "dotenv";
+import { PermissionFactory } from "../models/permission.model";
+import { EntranceFactory } from "../models/entrance.model";
 
 dotenv.config();
 
@@ -23,6 +27,9 @@ const User = UserFactory(dbConfig);
 const Token = TokenFactory(dbConfig);
 const ActivationLink = LinkFactory(dbConfig);
 const Space = SpaceFactory(dbConfig);
+const Tag = TagFactory(dbConfig);
+const Permission = PermissionFactory(dbConfig);
+const Entrance = EntranceFactory(dbConfig);
 
 // User.hasOne(User);
 
@@ -31,4 +38,13 @@ const Space = SpaceFactory(dbConfig);
 // or instead of that, maybe many users have many skills
 // Skills.belongsToMany(Users, { through: "users_have_skills" });
 
-export { dbConfig, User, Token, ActivationLink, Space };
+export {
+  dbConfig,
+  User,
+  Token,
+  ActivationLink,
+  Space,
+  Tag,
+  Permission,
+  Entrance,
+};
