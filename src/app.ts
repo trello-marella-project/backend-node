@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import logger from "./utils/logger";
 import { dbConfig } from "./utils/connect";
 import dotenv from "dotenv";
+import cors from "cors";
 
 dotenv.config();
 
@@ -19,6 +20,7 @@ import { deserializeUser } from "./middleware/deserialize-user";
 
 const app = express();
 
+app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
 app.use(deserializeUser);
