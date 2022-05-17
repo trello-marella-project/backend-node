@@ -1,4 +1,4 @@
-import { Permission, User } from "../utils/connect";
+import { Permission, Tag, User } from "../utils/connect";
 import { UserAttributes } from "../models/user.model";
 import { NotFoundError } from "../errors";
 
@@ -16,7 +16,7 @@ class UserService {
   async checkUserIds({ input }: { input: number[] }) {
     for (const user_id in input) {
       const user = await User.findOne({
-        where: { user_id },
+        where: { user_id: input[user_id] },
       });
 
       if (!user) throw new NotFoundError("User is not found");
@@ -48,7 +48,29 @@ class UserService {
     spaceId: number;
   }) {
     for (const member in members) {
-      await Permission.create({ user_id: Number(member), space_id: spaceId });
+      await Permission.create({ user_id: members[member], space_id: spaceId });
+    }
+  }
+
+  async deleteMembers({
+    members,
+    spaceId,
+  }: {
+    members: number[];
+    spaceId: number;
+  }) {
+    for (const member in members) {
+      const memberFromDb = await Permission.findOne({
+        where: {
+          user_id: members[member],
+          space_id: spaceId,
+        },
+      });
+      if (!memberFromDb) {
+        throw new NotFoundError(`No member with id ${memberFromDb}`);
+      }
+      memberFromDb.destroy();
+      memberFromDb.save();
     }
   }
 }

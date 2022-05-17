@@ -4,7 +4,7 @@ import { NotFoundError } from "../errors";
 class TagService {
   async addTags({ tags, spaceId }: { tags: string[]; spaceId: number }) {
     for (const tag in tags) {
-      await Tag.create({ name: tag, space_id: spaceId });
+      await Tag.create({ name: tags[tag], space_id: spaceId });
     }
   }
 
@@ -12,7 +12,7 @@ class TagService {
     for (const tag in tags) {
       const tagFromDb = await Tag.findOne({
         where: {
-          name: tag,
+          name: tags[tag],
           space_id: spaceId,
         },
       });
