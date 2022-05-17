@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { LoginUserInput, RegisterUserInput } from "../schema/user.schema";
-import UserService from "../service/user.service";
+import AuthService from "../service/auth.service";
 
 const register = async (
   req: Request<{}, {}, RegisterUserInput["body"]>,
@@ -8,7 +8,7 @@ const register = async (
   next: NextFunction
 ) => {
   try {
-    await UserService.register(req.body);
+    await AuthService.register(req.body);
     res.status(200).json({ status: "success" });
   } catch (error: any) {
     next(error);
@@ -21,7 +21,7 @@ const login = async (
   next: NextFunction
 ) => {
   try {
-    const userData = await UserService.login({ ...req.body });
+    const userData = await AuthService.login({ ...req.body });
     res.cookie("refreshToken", userData.refreshToken, {
       maxAge: 30 * 24 * 60 * 60 * 1000,
       httpOnly: true,
@@ -39,7 +39,7 @@ const activateUser = async (
 ) => {
   try {
     const activationLink = req.params.link;
-    await UserService.activate(activationLink);
+    await AuthService.activate(activationLink);
     res.redirect(process.env.CLIENT_URL as string);
   } catch (error: any) {
     next(error);
@@ -48,7 +48,7 @@ const activateUser = async (
 
 const refresh = async (req: Request, res: Response) => {
   const refreshToken = req.cookies.refreshToken;
-  const userData = await UserService.refresh(refreshToken);
+  const userData = await AuthService.refresh(refreshToken);
   res.cookie("refreshToken", userData.refreshToken, {
     maxAge: 30 * 24 * 60 * 60 * 1000,
     httpOnly: true,

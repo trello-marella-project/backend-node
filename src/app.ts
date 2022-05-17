@@ -43,7 +43,7 @@ const start = async () => {
       logger.info(`Server started on port ${PORT}`);
     });
   } catch (error) {
-    logger.error(error);
+    logger.error( error);
   }
 };
 

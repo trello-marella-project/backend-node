@@ -64,7 +64,6 @@ class TokenService {
     const tokenData = await Token.findOne({
       where: { user_id: input.user_id },
     });
-    console.log("tokenData", tokenData);
     if (tokenData) {
       tokenData.token = input.token;
       return await tokenData.save();

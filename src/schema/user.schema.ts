@@ -28,3 +28,13 @@ export const loginUserSchema = object({
 });
 
 export type LoginUserInput = TypeOf<typeof loginUserSchema>;
+
+export const checkUserEmailSchema = object({
+  body: object({
+    email: string({
+      required_error: "Email is required",
+    }).email("Not a valid email"),
+  }),
+});
+
+export type CheckUserEmailInput = TypeOf<typeof checkUserEmailSchema>;
