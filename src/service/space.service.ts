@@ -122,7 +122,6 @@ class SpaceService {
   }
 
   async getConvertedSpaces({ spaces }: { spaces: SpaceModel[] }) {
-
     // TODO убрать и изменить на джоины (возможносоздать индекс)
     let convertedSpaces = [];
     for (const id in spaces) {

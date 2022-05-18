@@ -23,6 +23,17 @@ class TagService {
       tagFromDb.save();
     }
   }
+
+  async getAllTags() {
+    const tags = await Tag.findAll({ group: "name", attributes: ["name"] });
+
+    const convertedTags = [];
+    for (const tag in tags) {
+      convertedTags.push(tags[tag].name);
+    }
+
+    return convertedTags;
+  }
 }
 
 export default new TagService();

@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { CreateSpaceInput, UpdateSpaceInput } from "../schema/space.schema";
 import SpaceService from "../service/space.service";
+import TagService from "../service/tag.service";
 
 type SpacesQuery = {
   limit: string;
@@ -95,8 +96,23 @@ const getRecentSpaces = async (
   }
 };
 
+const getAllTags = async (
+  req: Request<{}, {}, {}>,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const tags = await TagService.getAllTags();
+
+    res.status(200).json({ tags });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export {
   createSpace,
+  getAllTags,
   updateSpace,
   getRecentSpaces,
   getYoursSpaces,
