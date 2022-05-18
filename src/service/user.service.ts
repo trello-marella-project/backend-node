@@ -73,6 +73,15 @@ class UserService {
       memberFromDb.save();
     }
   }
+
+  async getUsernameById({ user_id }: { user_id: number }) {
+    const user = await User.findOne({ where: { user_id } });
+
+    if (!user) {
+      throw new NotFoundError("User not found");
+    }
+    return user.username;
+  }
 }
 
 export default new UserService();

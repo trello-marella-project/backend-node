@@ -2,6 +2,11 @@ import { NextFunction, Request, Response } from "express";
 import { CreateSpaceInput, UpdateSpaceInput } from "../schema/space.schema";
 import SpaceService from "../service/space.service";
 
+type SpacesQuery = {
+  limit: string;
+  page: string;
+};
+
 const createSpace = async (
   req: Request<{}, {}, CreateSpaceInput>,
   res: Response,
@@ -39,38 +44,61 @@ const updateSpace = async (
   }
 };
 
-// const getYoursSpaces = async (
-//   req: Request<{}, {}, {}>,
-//   res: Response,
-//   next: NextFunction
-// ) => {
-//   try {
-//   } catch (error) {
-//     next(error)
-//   }
-// };
-//
-// const getPermittedSpaces = async (
-//     req: Request<{}, {}, {}>,
-//     res: Response,
-//     next: NextFunction
-// ) => {
-//   try {
-//   } catch (error) {
-//     next(error)
-//   }
-// };
-//
-// const getPermittedSpaces = async (
-//     req: Request<{}, {}, {}>,
-//     res: Response,
-//     next: NextFunction
-// ) => {
-//   try {
-//   } catch (error) {
-//     next(error)
-//   }
-// };
+const getYoursSpaces = async (
+  req: Request<{}, {}, {}, SpacesQuery>,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { page, limit } = req.query;
 
+    const spaces = await SpaceService.getYoursSpaces({
+      userId: res.locals.user.user_id,
+      page,
+      limit,
+    });
 
-export { createSpace, updateSpace };
+    res.status(200).json({ spaces });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getPermittedSpaces = async (
+  req: Request<{}, {}, {}, SpacesQuery>,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { page, limit } = req.query;
+
+    const spaces = await SpaceService.getPermittedSpaces({
+      userId: res.locals.user.user_id,
+      page,
+      limit,
+    });
+
+    res.status(200).json({ spaces });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getRecentSpaces = async (
+  req: Request<SpacesQuery, {}, {}>,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+  } catch (error) {
+    next(error);
+  }
+};
+
+export {
+  createSpace,
+  updateSpace,
+  getRecentSpaces,
+  getYoursSpaces,
+  getPermittedSpaces,
+};
