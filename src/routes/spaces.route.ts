@@ -1,7 +1,7 @@
 import * as express from "express";
 import { userPermission } from "../middleware/permissions";
 import {
-  createSpace,
+  createSpace, deleteSpace,
   getAllSpaces,
   getAllTags,
   getPermittedSpaces,
@@ -24,6 +24,7 @@ router.post(
 
 router.put("/:space_id", userPermission, updateSpace);
 router.get("/:space_id", userPermission, getSpaceById);
+router.delete("/:space_id", userPermission, deleteSpace)
 
 router.get("/", userPermission, getAllSpaces);
 router.get("/yours", userPermission, getYoursSpaces);

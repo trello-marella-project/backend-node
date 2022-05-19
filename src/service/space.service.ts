@@ -107,7 +107,6 @@ class SpaceService {
 
     if (!space) throw new NotFoundError("Space not found");
 
-    // return space;
     return await this.getConvertedSpace({ space });
   }
 
@@ -194,6 +193,7 @@ class SpaceService {
       limit: rowLimit,
     });
 
+    console.log('meow')
     const spaces = await Space.findAll({
       where: { user_id: userId },
       order: [["createdAt", "DESC"]],
@@ -268,6 +268,33 @@ class SpaceService {
     }
 
     return convertedSpaces;
+  }
+
+  async deleteSpace({ userId, spaceId }: { userId: number; spaceId: number }) {
+    const space = await Space.findOne({ where: { space_id: spaceId } });
+
+    if (!space) throw new NotFoundError("Space not found");
+    if (space.user_id !== userId)
+      throw new ForbiddenError("You are not the owner of the space");
+
+    // find and delete all tags
+    const tags = await Tag.findAll({ where: { space_id: spaceId } });
+    for (const tagId in tags) {
+      await tags[tagId].destroy();
+      await tags[tagId].save();
+    }
+
+    // find and delete all members
+    const members = await Permission.findAll({ where: { space_id: spaceId } });
+    for (const memberId in members) {
+      await members[memberId].destroy();
+      await members[memberId].save();
+    }
+
+    // TODO find and delete all entrances
+
+    await space.destroy();
+    await space.save();
   }
 
   getPaginationProperties({ page: rowPage, limit: rowLimit }: paginationI) {

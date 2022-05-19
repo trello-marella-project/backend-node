@@ -69,8 +69,8 @@ class UserService {
       if (!memberFromDb) {
         throw new NotFoundError(`No member with id ${memberFromDb}`);
       }
-      memberFromDb.destroy();
-      memberFromDb.save();
+      await memberFromDb.destroy();
+      await memberFromDb.save();
     }
   }
 

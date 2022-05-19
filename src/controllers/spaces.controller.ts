@@ -68,6 +68,27 @@ const getSpaceById = async (
   }
 };
 
+const deleteSpace = async (
+  req: Request<{ space_id: string }, {}, {}>,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const {
+      params: { space_id: spaceId },
+    } = req;
+
+    await SpaceService.deleteSpace({
+      spaceId: Number(spaceId),
+      userId: res.locals.user.user_id,
+    });
+
+    res.status(200).json({ status: "success" });
+  } catch (error) {
+    next(error);
+  }
+};
+
 const getYoursSpaces = async (
   req: Request<{}, {}, {}, SpacesQuery>,
   res: Response,
@@ -162,5 +183,6 @@ export {
   getAllSpaces,
   getYoursSpaces,
   getPermittedSpaces,
+  deleteSpace,
   getSpaceById,
 };
