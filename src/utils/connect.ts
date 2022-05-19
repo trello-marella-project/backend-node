@@ -33,6 +33,9 @@ const Entrance = EntranceFactory(dbConfig);
 
 Space.hasMany(Tag, {foreignKey: "space_id"});
 Tag.belongsTo(Space, {foreignKey: "space_id"})
+
+Space.hasMany(Permission, {foreignKey: "space_id"});
+Permission.belongsTo(Space, {foreignKey: "space_id"})
 // User.hasOne(User);
 
 // User.hasMay(Skills);

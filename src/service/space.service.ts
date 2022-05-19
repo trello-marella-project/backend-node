@@ -4,6 +4,7 @@ import TagService from "./tag.service";
 import { ForbiddenError, NotFoundError } from "../errors";
 import { SpaceModel } from "models/space.model";
 import { Op } from "sequelize";
+import { convertObjectsToArray } from "../utils/helpers";
 
 interface getSpacesI {
   userId?: number;
@@ -84,6 +85,53 @@ class SpaceService {
 
     // TODO при изменении на public убирать из бд все members
     // TODO при изменении на private убирать из бд все tags
+  }
+
+  async getSpaceById({ spaceId, userId }: { spaceId: number; userId: number }) {
+    const space = await Space.findOne({
+      include: [
+        {
+          model: Tag,
+          attributes: ["name"],
+        },
+        {
+          model: Permission,
+          attributes: ["user_id"],
+        },
+      ],
+      where: { space_id: spaceId },
+      attributes: ["is_public", "name"],
+    });
+
+    // TODO сделать проверку на то что доступ есть
+
+    if (!space) throw new NotFoundError("Space not found");
+
+    // return space;
+    return await this.getConvertedSpace({ space });
+  }
+
+  async getConvertedSpace({ space }: { space: any }) {
+    // TODO перенести все в dtos
+    return {
+      is_public: space.is_public,
+      name: space.name,
+      tags: await convertObjectsToArray({
+        input: space.tags,
+        property: "name",
+      }),
+      members: await convertObjectsToArray({
+        input: space.permissions,
+        property: "user_id",
+        callback: async (input) => {
+          const username = await UserService.getUsernameById({
+            user_id: input,
+          });
+          console.log("username", username);
+          return username;
+        },
+      }),
+    };
   }
 
   async getAllSpaces({
@@ -204,11 +252,6 @@ class SpaceService {
     // TODO сделать не any
     let convertedSpaces = [];
     for (const id in spaces) {
-      let convertedTags = [];
-      for (const tagId in spaces[id].tags) {
-        convertedTags.push(spaces[id].tags[tagId].name);
-      }
-
       const username = await UserService.getUsernameById({
         user_id: spaces[id].user_id,
       });
@@ -216,7 +259,10 @@ class SpaceService {
       convertedSpaces.push({
         space_id: spaces[id].space_id,
         name: spaces[id].name,
-        tags: convertedTags,
+        tags: convertObjectsToArray({
+          input: spaces[id].tags,
+          property: "name",
+        }),
         username,
       });
     }

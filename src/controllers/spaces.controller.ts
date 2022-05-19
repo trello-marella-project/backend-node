@@ -47,6 +47,27 @@ const updateSpace = async (
   }
 };
 
+const getSpaceById = async (
+  req: Request<{ space_id: string }, {}, {}>,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const {
+      params: { space_id: spaceId },
+    } = req;
+
+    const space = await SpaceService.getSpaceById({
+      spaceId: Number(spaceId),
+      userId: res.locals.user.user_id,
+    });
+
+    res.status(200).json(space);
+  } catch (error) {
+    next(error);
+  }
+};
+
 const getYoursSpaces = async (
   req: Request<{}, {}, {}, SpacesQuery>,
   res: Response,
@@ -141,4 +162,5 @@ export {
   getAllSpaces,
   getYoursSpaces,
   getPermittedSpaces,
+  getSpaceById,
 };

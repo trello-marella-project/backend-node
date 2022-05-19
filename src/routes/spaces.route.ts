@@ -6,6 +6,7 @@ import {
   getAllTags,
   getPermittedSpaces,
   getRecentSpaces,
+  getSpaceById,
   getYoursSpaces,
   updateSpace,
 } from "../controllers/spaces.controller";
@@ -22,6 +23,7 @@ router.post(
 );
 
 router.put("/:space_id", userPermission, updateSpace);
+router.get("/:space_id", userPermission, getSpaceById);
 
 router.get("/", userPermission, getAllSpaces);
 router.get("/yours", userPermission, getYoursSpaces);
