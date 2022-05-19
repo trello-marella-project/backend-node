@@ -4,8 +4,10 @@ import SpaceService from "../service/space.service";
 import TagService from "../service/tag.service";
 
 type SpacesQuery = {
-  limit: string;
-  page: string;
+  limit?: string;
+  page?: string;
+  tags?: string;
+  search?: string;
 };
 
 const createSpace = async (
@@ -85,8 +87,29 @@ const getPermittedSpaces = async (
   }
 };
 
+const getAllSpaces = async (
+  req: Request<{}, {}, {}, SpacesQuery>,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { page, limit, search, tags } = req.query;
+
+    const spaces = await SpaceService.getAllSpaces({
+      tags,
+      search,
+      limit,
+      page,
+    });
+
+    res.status(200).json({ spaces });
+  } catch (error) {
+    next(error);
+  }
+};
+
 const getRecentSpaces = async (
-  req: Request<SpacesQuery, {}, {}>,
+  req: Request<{}, {}, {}, SpacesQuery>,
   res: Response,
   next: NextFunction
 ) => {
@@ -115,6 +138,7 @@ export {
   getAllTags,
   updateSpace,
   getRecentSpaces,
+  getAllSpaces,
   getYoursSpaces,
   getPermittedSpaces,
 };
