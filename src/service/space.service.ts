@@ -1,9 +1,9 @@
-import { Permission, Space, Tag } from "../utils/connect";
+import { Entrance, Permission, Space, Tag } from "../utils/connect";
 import UserService from "./user.service";
 import TagService from "./tag.service";
 import { ForbiddenError, NotFoundError } from "../errors";
 import { SpaceModel } from "models/space.model";
-import { Op } from "sequelize";
+import sequelize, { Op } from "sequelize";
 import { convertObjectsToArray } from "../utils/helpers";
 
 interface getSpacesI {
@@ -107,6 +107,20 @@ class SpaceService {
 
     if (!space) throw new NotFoundError("Space not found");
 
+    // update or create user entrance time
+    const user = await Entrance.findOne({ where: { user_id: userId } });
+    if (!user) {
+      await Entrance.create({
+        user_id: userId,
+        space_id: spaceId,
+      });
+    } else {
+      await Entrance.update(
+        { time: sequelize.literal("CURRENT_TIMESTAMP") },
+        { where: { user_id: userId } }
+      );
+    }
+
     return await this.getConvertedSpace({ space });
   }
 
@@ -193,7 +207,7 @@ class SpaceService {
       limit: rowLimit,
     });
 
-    console.log('meow')
+    console.log("meow");
     const spaces = await Space.findAll({
       where: { user_id: userId },
       order: [["createdAt", "DESC"]],
