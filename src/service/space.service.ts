@@ -110,7 +110,7 @@ class SpaceService {
   }
 
   async getSpaceById({ spaceId, userId }: { spaceId: number; userId: number }) {
-    await PermissionService.getSpaceById({ spaceId, userId });
+    await PermissionService.workspace({ spaceId, userId });
 
     const space = await Space.findOne({
       include: [
