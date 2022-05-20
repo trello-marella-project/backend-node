@@ -19,8 +19,8 @@ class TagService {
       if (!tagFromDb) {
         throw new NotFoundError(`No task with id ${tagFromDb}`);
       }
-      tagFromDb.destroy();
-      tagFromDb.save();
+      await tagFromDb.destroy();
+      await tagFromDb.save();
     }
   }
 

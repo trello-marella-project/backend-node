@@ -31,17 +31,11 @@ const Tag = TagFactory(dbConfig);
 const Permission = PermissionFactory(dbConfig);
 const Entrance = EntranceFactory(dbConfig);
 
-Space.hasMany(Tag, {foreignKey: "space_id"});
-Tag.belongsTo(Space, {foreignKey: "space_id"})
+Space.hasMany(Tag, { foreignKey: "space_id" });
+Tag.belongsTo(Space, { foreignKey: "space_id" });
 
-Space.hasMany(Permission, {foreignKey: "space_id"});
-Permission.belongsTo(Space, {foreignKey: "space_id"})
-// User.hasOne(User);
-
-// User.hasMay(Skills);
-//
-// or instead of that, maybe many users have many skills
-// Skills.belongsToMany(Users, { through: "users_have_skills" });
+Space.hasMany(Permission, { foreignKey: "space_id" });
+Permission.belongsTo(Space, { foreignKey: "space_id" });
 
 export {
   dbConfig,

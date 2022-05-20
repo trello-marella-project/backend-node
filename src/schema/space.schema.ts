@@ -28,8 +28,8 @@ export const updateSpaceSchema = object({
       deleted: array(string()),
     }),
     members: object({
-      added: array(string()),
-      deleted: array(string()),
+      added: array(number()),
+      deleted: array(number()),
     }),
   }),
 });

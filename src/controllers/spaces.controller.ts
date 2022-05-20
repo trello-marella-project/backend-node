@@ -38,7 +38,7 @@ const updateSpace = async (
 
     await SpaceService.updateSpace({
       spaceId: Number(spaceId),
-      input: { ...req.body },
+      input: { ...req.body.body },
       userId: res.locals.user.user_id,
     });
     res.status(200).json({ status: "success" });
@@ -97,13 +97,14 @@ const getYoursSpaces = async (
   try {
     const { page, limit } = req.query;
 
+
     const spaces = await SpaceService.getYoursSpaces({
       userId: res.locals.user.user_id,
       page,
       limit,
     });
 
-    res.status(200).json({ spaces });
+    res.status(200).json( {spaces} );
   } catch (error) {
     next(error);
   }

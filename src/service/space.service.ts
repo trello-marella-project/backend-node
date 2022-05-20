@@ -4,7 +4,9 @@ import TagService from "./tag.service";
 import { ForbiddenError, NotFoundError } from "../errors";
 import { SpaceModel } from "models/space.model";
 import sequelize, { Op } from "sequelize";
-import { convertObjectsToArray } from "../utils/helpers";
+import ConvertedService from "./converted.service";
+import PermissionService from "./permission.service";
+import { getPaginationProperties } from "../utils/helpers";
 
 interface getSpacesI {
   userId?: number;
@@ -14,13 +16,15 @@ interface getSpacesI {
   tags?: string | undefined;
 }
 
-interface paginationI {
-  page: string | undefined;
-  limit: string | undefined;
-}
-
 class SpaceService {
-  async createSpace({ input, userId }: { input: any; userId: number }) {
+  async createSpace({
+    input,
+    userId,
+  }: {
+    input: any;
+    //input: CreateSpaceInput["body"];
+    userId: number;
+  }) {
     // TODO change any
     await UserService.checkUserIds({ input: input.members });
     const space = await Space.create({
@@ -28,6 +32,8 @@ class SpaceService {
       user_id: userId,
       is_public: input.is_public,
     });
+
+    if (!space) throw new Error("Space not created, try again later");
 
     await TagService.addTags({ tags: input.tags, spaceId: space.space_id! });
     await UserService.addMembers({
@@ -46,7 +52,6 @@ class SpaceService {
     userId: number;
   }) {
     // TODO change any
-
     // check space existence
     const space = await Space.findOne({
       where: { space_id: spaceId, user_id: userId },
@@ -77,17 +82,36 @@ class SpaceService {
       space.save();
     }
 
+    // delete all members permissions if is_public changed on true
+    if (space.is_public !== input.is_public && input.is_public) {
+      const members = await Permission.findAll({
+        where: { space_id: spaceId },
+      });
+      for (const memberId in members) {
+        await members[memberId].destroy();
+        await members[memberId].save();
+      }
+    }
+
+    // delete all tags permissions if is_public changed on false
+    if (space.is_public !== input.is_public && !input.is_public) {
+      const tags = await Tag.findAll({ where: { space_id: spaceId } });
+      for (const tagId in tags) {
+        await tags[tagId].destroy();
+        await tags[tagId].save();
+      }
+    }
+
     // change space public property
     if (space.is_public !== input.is_public) {
       space.is_public = input.is_public;
       space.save();
     }
-
-    // TODO при изменении на public убирать из бд все members
-    // TODO при изменении на private убирать из бд все tags
   }
 
   async getSpaceById({ spaceId, userId }: { spaceId: number; userId: number }) {
+    await PermissionService.getSpaceById({ spaceId, userId });
+
     const space = await Space.findOne({
       include: [
         {
@@ -102,8 +126,6 @@ class SpaceService {
       where: { space_id: spaceId },
       attributes: ["is_public", "name"],
     });
-
-    // TODO сделать проверку на то что доступ есть
 
     if (!space) throw new NotFoundError("Space not found");
 
@@ -121,30 +143,7 @@ class SpaceService {
       );
     }
 
-    return await this.getConvertedSpace({ space });
-  }
-
-  async getConvertedSpace({ space }: { space: any }) {
-    // TODO перенести все в dtos
-    return {
-      is_public: space.is_public,
-      name: space.name,
-      tags: await convertObjectsToArray({
-        input: space.tags,
-        property: "name",
-      }),
-      members: await convertObjectsToArray({
-        input: space.permissions,
-        property: "user_id",
-        callback: async (input) => {
-          const username = await UserService.getUsernameById({
-            user_id: input,
-          });
-          console.log("username", username);
-          return username;
-        },
-      }),
-    };
+    return await ConvertedService.getConvertedSpace({ space });
   }
 
   async getAllSpaces({
@@ -153,7 +152,7 @@ class SpaceService {
     tags: rowTags,
     search,
   }: getSpacesI) {
-    const { limit, offset } = this.getPaginationProperties({
+    const { limit, offset } = getPaginationProperties({
       page,
       limit: rowLimit,
     });
@@ -198,16 +197,15 @@ class SpaceService {
       limit,
     });
 
-    return await this.getConvertedAllSpaces({ spaces });
+    return await ConvertedService.getConvertedAllSpaces({ spaces });
   }
 
   async getYoursSpaces({ userId, page, limit: rowLimit }: getSpacesI) {
-    const { limit, offset } = this.getPaginationProperties({
+    const { limit, offset } = getPaginationProperties({
       page,
       limit: rowLimit,
     });
 
-    console.log("meow");
     const spaces = await Space.findAll({
       where: { user_id: userId },
       order: [["createdAt", "DESC"]],
@@ -215,11 +213,11 @@ class SpaceService {
       limit,
     });
 
-    return await this.getConvertedSpaces({ spaces });
+    return await ConvertedService.getConvertedSpaces({ spaces });
   }
 
   async getPermittedSpaces({ userId, page, limit: rowLimit }: getSpacesI) {
-    const { limit, offset } = this.getPaginationProperties({
+    const { limit, offset } = getPaginationProperties({
       page,
       limit: rowLimit,
     });
@@ -240,48 +238,7 @@ class SpaceService {
       spaces.push(space);
     }
 
-    return await this.getConvertedSpaces({ spaces });
-  }
-
-  async getConvertedSpaces({ spaces }: { spaces: SpaceModel[] }) {
-    // TODO убрать и изменить на джоины (возможно создать индекс)
-    let convertedSpaces = [];
-    for (const id in spaces) {
-      const username = await UserService.getUsernameById({
-        user_id: spaces[id].user_id,
-      });
-      convertedSpaces.push({
-        space_id: spaces[id].space_id,
-        name: spaces[id].name,
-        is_public: spaces[id].is_public,
-        username,
-      });
-    }
-
-    return convertedSpaces;
-  }
-
-  async getConvertedAllSpaces({ spaces }: { spaces: any }) {
-    // TODO нормально переделать ...
-    // TODO сделать не any
-    let convertedSpaces = [];
-    for (const id in spaces) {
-      const username = await UserService.getUsernameById({
-        user_id: spaces[id].user_id,
-      });
-
-      convertedSpaces.push({
-        space_id: spaces[id].space_id,
-        name: spaces[id].name,
-        tags: convertObjectsToArray({
-          input: spaces[id].tags,
-          property: "name",
-        }),
-        username,
-      });
-    }
-
-    return convertedSpaces;
+    return await ConvertedService.getConvertedSpaces({ spaces });
   }
 
   async deleteSpace({ userId, spaceId }: { userId: number; spaceId: number }) {
@@ -305,17 +262,15 @@ class SpaceService {
       await members[memberId].save();
     }
 
-    // TODO find and delete all entrances
+    // find and delete all entrances
+    const entrances = await Entrance.findAll({ where: { space_id: spaceId } });
+    for (const entranceId in entrances) {
+      await entrances[entranceId].destroy();
+      await entrances[entranceId].save();
+    }
 
     await space.destroy();
     await space.save();
-  }
-
-  getPaginationProperties({ page: rowPage, limit: rowLimit }: paginationI) {
-    const page = Number(rowPage) || 1;
-    const limit = Number(rowLimit) || 10;
-    const offset = (page - 1) * limit;
-    return { limit, offset };
   }
 }
 
