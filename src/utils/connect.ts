@@ -9,6 +9,8 @@ import { TagFactory } from "../models/tag.model";
 import dotenv from "dotenv";
 import { PermissionFactory } from "../models/permission.model";
 import { EntranceFactory } from "../models/entrance.model";
+import { CardFactory } from "../models/card.model";
+import { BlockFactory } from "../models/block.model";
 
 dotenv.config();
 
@@ -30,6 +32,8 @@ const Space = SpaceFactory(dbConfig);
 const Tag = TagFactory(dbConfig);
 const Permission = PermissionFactory(dbConfig);
 const Entrance = EntranceFactory(dbConfig);
+const Block = BlockFactory(dbConfig);
+const Card = CardFactory(dbConfig);
 
 Space.hasMany(Tag, { foreignKey: "space_id" });
 Tag.belongsTo(Space, { foreignKey: "space_id" });
@@ -46,4 +50,6 @@ export {
   Tag,
   Permission,
   Entrance,
+  Block,
+  Card,
 };
