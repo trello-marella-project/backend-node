@@ -216,6 +216,32 @@ class SpaceService {
     return await ConvertedService.getConvertedSpaces({ spaces });
   }
 
+  async getRecentSpaces({ userId, page, limit: rowLimit }: getSpacesI) {
+    const { limit, offset } = getPaginationProperties({
+      page,
+      limit: rowLimit,
+    });
+
+    const entrances = await Entrance.findAll({
+      where: { user_id: userId },
+      order: [["time", "DESC"]],
+      offset,
+      limit,
+    });
+
+    const spaces = [];
+
+    for (const entranceId in entrances) {
+      const space = await Space.findOne({
+        where: { space_id: entrances[entranceId].space_id },
+      });
+      if (!space) throw new NotFoundError("Space not found");
+      spaces.push(space);
+    }
+
+    return await ConvertedService.getConvertedSpaces({ spaces });
+  }
+
   async getPermittedSpaces({ userId, page, limit: rowLimit }: getSpacesI) {
     const { limit, offset } = getPaginationProperties({
       page,

@@ -8,7 +8,11 @@ class PermissionService {
     });
     const space = await Space.findOne({ where: { space_id: spaceId } });
 
-    if (!permission || !space || !space.is_public || space.user_id !== userId) {
+    if (
+      !space ||
+      !space.is_public ||
+      (space?.user_id !== userId && !permission)
+    ) {
       throw new ForbiddenError("Dont have access to space");
     }
   }

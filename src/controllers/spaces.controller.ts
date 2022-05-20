@@ -97,14 +97,13 @@ const getYoursSpaces = async (
   try {
     const { page, limit } = req.query;
 
-
     const spaces = await SpaceService.getYoursSpaces({
       userId: res.locals.user.user_id,
       page,
       limit,
     });
 
-    res.status(200).json( {spaces} );
+    res.status(200).json({ spaces });
   } catch (error) {
     next(error);
   }
@@ -157,6 +156,15 @@ const getRecentSpaces = async (
   next: NextFunction
 ) => {
   try {
+    const { page, limit } = req.query;
+
+    const spaces = await SpaceService.getRecentSpaces({
+      userId: res.locals.user.user_id,
+      page,
+      limit,
+    });
+
+    res.status(200).json({ spaces });
   } catch (error) {
     next(error);
   }
