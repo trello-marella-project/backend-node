@@ -63,8 +63,33 @@ class ConvertedService {
         username,
       });
     }
-
     return convertedSpaces;
+  }
+
+  async getConvertedWorkspace({ space }: { space: any }) {
+    // TODO change any
+    return {
+      space_id: space.space_id,
+      name: space.name,
+      is_public: space.is_public,
+      members: await convertObjectsToArray({
+        input: space.permissions,
+        property: "user_id",
+        callback: async (input) =>
+          await UserService.getUsernameById({
+            user_id: input,
+          }),
+      }),
+      blocks: space.blocks.map((block: any) => ({
+        name: block.name,
+        block_id: block.block_id,
+        cards: block.cards.map((card: any) => ({
+          card_id: card.card_id,
+          name: card.name,
+          description: card.description,
+        })),
+      })),
+    };
   }
 }
 

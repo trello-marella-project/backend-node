@@ -1,6 +1,7 @@
 import PermissionService from "./permission.service";
-import { Block, Card, Space } from "../utils/connect";
+import { Block, Card, Permission, Space } from "../utils/connect";
 import { NotFoundError } from "../errors";
+import ConvertedService from "./converted.service";
 
 class WorkspaceService {
   async getWorkspaceById({
@@ -14,21 +15,28 @@ class WorkspaceService {
 
     const space = await Space.findOne({
       where: { space_id: workspaceId },
+      attributes: ["space_id", "is_public", "name", "user_id"],
       include: [
         {
+          model: Permission,
+          attributes: ["user_id"],
+        },
+        {
           model: Block,
-          attributes: ["block_id", "name"],
+          order: ["createdAt", "DESC"],
+          attributes: ["block_id", "name", "createdAt"],
           include: [
             {
               model: Card,
-              attributes: ["card_id", "name", "description"],
+              order: ["createdAt", "DESC"],
+              attributes: ["card_id", "name", "description", "createdAt"],
             },
           ],
         },
       ],
     });
 
-    return space;
+    return await ConvertedService.getConvertedWorkspace({ space });
   }
 
   async createBlock({
