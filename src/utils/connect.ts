@@ -41,6 +41,12 @@ Tag.belongsTo(Space, { foreignKey: "space_id" });
 Space.hasMany(Permission, { foreignKey: "space_id" });
 Permission.belongsTo(Space, { foreignKey: "space_id" });
 
+Space.hasMany(Block, { foreignKey: "space_id" });
+Block.belongsTo(Space, { foreignKey: "space_id" });
+
+Block.hasMany(Card, { foreignKey: "block_id" });
+Card.belongsTo(Block, { foreignKey: "block_id" });
+
 export {
   dbConfig,
   User,

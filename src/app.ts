@@ -12,6 +12,7 @@ dotenv.config();
 import authRoutes from "./routes/auth.route";
 import usersRoutes from "./routes/users.route";
 import spacesRoutes from "./routes/spaces.route";
+import workspaceRoutes from "./routes/workspace.route";
 
 // middleware import
 import { errorHandlerMiddleware } from "./middleware/error-handler";
@@ -28,6 +29,7 @@ app.use(deserializeUser);
 app.use("/api/auth", authRoutes);
 app.use("/api/users", usersRoutes);
 app.use("/api/spaces", spacesRoutes);
+app.use("/api/workspace", workspaceRoutes);
 
 app.use(notFound);
 app.use(errorHandlerMiddleware);
@@ -43,7 +45,7 @@ const start = async () => {
       logger.info(`Server started on port ${PORT}`);
     });
   } catch (error) {
-    logger.error( error);
+    logger.error(error);
   }
 };
 
