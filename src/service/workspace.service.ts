@@ -96,6 +96,82 @@ class WorkspaceService {
     await block.destroy();
     await block.save();
   }
+
+  async createCard({
+    workspaceId,
+    input,
+    blockId,
+  }: {
+    workspaceId: number;
+    blockId: number;
+    input: any;
+  }) {
+    // TODO проверка на суествованите блока
+    // TODO change input any
+    const card = await Card.create({
+      block_id: blockId,
+      name: input.name,
+      description: input.description,
+    });
+
+    if (!card) throw new Error("Cant create block. Try again later");
+
+    // TODO create dto
+    return {
+      block_id: card.block_id,
+      name: card.name,
+      description: card.description,
+      card_id: card.card_id,
+    };
+  }
+
+  async updateCard({
+    workspaceId,
+    blockId,
+    cardId,
+    input,
+  }: {
+    workspaceId: number;
+    blockId: number;
+    input: any;
+    cardId: number;
+  }) {
+    const card = await Card.findOne({
+      where: { block_id: blockId, card_id: cardId },
+    });
+
+    if (!card) throw new NotFoundError("Card not found");
+
+    card.name = input.name;
+    card.description = input.description;
+    await card.save();
+
+    return {
+      block_id: card.block_id,
+      name: card.name,
+      description: card.description,
+      card_id: card.card_id,
+    };
+  }
+
+  async deleteCard({
+    workspaceId,
+    blockId,
+    cardId,
+  }: {
+    workspaceId: number;
+    blockId: number;
+    cardId: number;
+  }) {
+    const card = await Card.findOne({
+      where: { block_id: blockId, card_id: cardId },
+    });
+
+    if (!card) throw new NotFoundError("Card not found");
+
+    await card.destroy();
+    await card.save();
+  }
 }
 
 export default new WorkspaceService();

@@ -1,6 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 import WorkspaceService from "../service/workspace.service";
-import { CreateWorkspaceBlockInput } from "../schema/workspace.schema";
+import {
+  WorkspaceBlockInput,
+  WorkspaceCardInput,
+} from "../schema/workspace.schema";
 
 const getWorkspaceById = async (
   req: Request<{ workspace_id: string }, {}, {}>,
@@ -24,7 +27,7 @@ const getWorkspaceById = async (
 };
 
 const createBlock = async (
-  req: Request<{ workspace_id: string }, {}, CreateWorkspaceBlockInput>,
+  req: Request<{ workspace_id: string }, {}, WorkspaceBlockInput>,
   res: Response,
   next: NextFunction
 ) => {
@@ -48,7 +51,7 @@ const updateBlock = async (
   req: Request<
     { workspace_id: string; block_id: string },
     {},
-    CreateWorkspaceBlockInput
+    WorkspaceBlockInput
   >,
   res: Response,
   next: NextFunction
@@ -71,11 +74,7 @@ const updateBlock = async (
 };
 
 const deleteBlock = async (
-  req: Request<
-    { workspace_id: string; block_id: string },
-    {},
-    CreateWorkspaceBlockInput
-  >,
+  req: Request<{ workspace_id: string; block_id: string }, {}, {}>,
   res: Response,
   next: NextFunction
 ) => {
@@ -95,4 +94,91 @@ const deleteBlock = async (
   }
 };
 
-export { getWorkspaceById, createBlock, updateBlock, deleteBlock };
+const createCard = async (
+  req: Request<
+    { workspace_id: string; block_id: string },
+    {},
+    WorkspaceCardInput
+  >,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const {
+      params: { workspace_id: workspaceId, block_id: blockId },
+    } = req;
+
+    const card = await WorkspaceService.createCard({
+      workspaceId: Number(workspaceId),
+      blockId: Number(blockId),
+      input: { ...req.body },
+    });
+
+    res.status(200).json(card);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const updateCard = async (
+  req: Request<
+    { workspace_id: string; block_id: string; card_id: string },
+    {},
+    WorkspaceCardInput
+  >,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const {
+      params: { workspace_id: workspaceId, block_id: blockId, card_id: cardId },
+    } = req;
+
+    const card = await WorkspaceService.updateCard({
+      workspaceId: Number(workspaceId),
+      blockId: Number(blockId),
+      cardId: Number(cardId),
+      input: { ...req.body },
+    });
+
+    res.status(200).json(card);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const deleteCard = async (
+  req: Request<
+    { workspace_id: string; block_id: string; card_id: string },
+    {},
+    {}
+  >,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const {
+      params: { workspace_id: workspaceId, block_id: blockId, card_id: cardId },
+    } = req;
+
+    await WorkspaceService.deleteCard({
+      workspaceId: Number(workspaceId),
+      blockId: Number(blockId),
+      cardId: Number(cardId),
+    });
+
+    res.status(200).json({ status: "success" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export {
+  getWorkspaceById,
+  createBlock,
+  updateBlock,
+  deleteBlock,
+  deleteCard,
+  updateCard,
+  createCard,
+};
