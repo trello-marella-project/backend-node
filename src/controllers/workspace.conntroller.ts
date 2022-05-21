@@ -70,4 +70,29 @@ const updateBlock = async (
   }
 };
 
-export { getWorkspaceById, createBlock, updateBlock };
+const deleteBlock = async (
+  req: Request<
+    { workspace_id: string; block_id: string },
+    {},
+    CreateWorkspaceBlockInput
+  >,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const {
+      params: { workspace_id: workspaceId, block_id: blockId },
+    } = req;
+
+    await WorkspaceService.deleteBlock({
+      blockId: Number(blockId),
+      workspaceId: Number(workspaceId),
+    });
+
+    res.status(200).json({ status: "success" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export { getWorkspaceById, createBlock, updateBlock, deleteBlock };

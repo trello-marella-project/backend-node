@@ -79,6 +79,23 @@ class WorkspaceService {
       space_id: block.space_id,
     };
   }
+
+  async deleteBlock({
+    blockId,
+    workspaceId,
+  }: {
+    workspaceId: number;
+    blockId: number;
+  }) {
+    const block = await Block.findOne({
+      where: { block_id: blockId, space_id: workspaceId },
+    });
+
+    if (!block) throw new NotFoundError("Block not found");
+
+    await block.destroy();
+    await block.save();
+  }
 }
 
 export default new WorkspaceService();
