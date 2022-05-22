@@ -11,6 +11,7 @@ import { PermissionFactory } from "../models/permission.model";
 import { EntranceFactory } from "../models/entrance.model";
 import { CardFactory } from "../models/card.model";
 import { BlockFactory } from "../models/block.model";
+import { ReportFactory } from "../models/report.model";
 
 dotenv.config();
 
@@ -34,6 +35,7 @@ const Permission = PermissionFactory(dbConfig);
 const Entrance = EntranceFactory(dbConfig);
 const Block = BlockFactory(dbConfig);
 const Card = CardFactory(dbConfig);
+const Report = ReportFactory(dbConfig);
 
 Space.hasMany(Tag, { foreignKey: "space_id" });
 Tag.belongsTo(Space, { foreignKey: "space_id" });
@@ -47,6 +49,12 @@ Block.belongsTo(Space, { foreignKey: "space_id" });
 Block.hasMany(Card, { foreignKey: "block_id" });
 Card.belongsTo(Block, { foreignKey: "block_id" });
 
+User.hasMany(Report, { foreignKey: "user_id" });
+Report.belongsTo(User, { foreignKey: "declarer_user_id" });
+
+User.hasMany(Report, { foreignKey: "user_id" });
+Report.belongsTo(User, { foreignKey: "accused_user_id" });
+
 export {
   dbConfig,
   User,
@@ -58,4 +66,5 @@ export {
   Entrance,
   Block,
   Card,
+  Report,
 };
