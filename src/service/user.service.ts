@@ -3,6 +3,17 @@ import { UserAttributes } from "../models/user.model";
 import { NotFoundError } from "../errors";
 
 class UserService {
+  async getAllUsers() {
+    const users = await User.findAll({
+      where: { role: "USER" },
+      order: [["is_blocked", "DESC"]],
+      attributes: ["user_id", "username", "email", "is_blocked"],
+    });
+
+    // TODO dto
+    return users;
+  }
+
   async createUser(
     input: Pick<UserAttributes, "password" | "username" | "email">
   ) {

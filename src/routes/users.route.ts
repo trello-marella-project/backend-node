@@ -9,7 +9,8 @@ import { checkUserEmailSchema } from "../schema/user.schema";
 
 const router = express.Router();
 
-router.get("/", adminPermission, getAllUsers);
+// router.get("/", adminPermission, getAllUsers);
+router.get("/", userPermission, getAllUsers);
 router.post(
   "/email",
   validateResource(checkUserEmailSchema),

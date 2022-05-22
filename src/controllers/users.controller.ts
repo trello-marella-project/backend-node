@@ -4,7 +4,12 @@ import UserService from "../service/user.service";
 import { CheckUserEmailInput } from "../schema/user.schema";
 
 const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
-  res.status(200).send("cool");
+  try {
+    const users = await UserService.getAllUsers();
+    res.status(200).json({ users });
+  } catch (error) {
+    next(error);
+  }
 };
 
 const checkEmailExistence = async (
