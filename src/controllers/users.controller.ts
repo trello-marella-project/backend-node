@@ -32,6 +32,7 @@ const createReport = async (
   next: NextFunction
 ) => {
   try {
+    // TODO add schema
     const {
       params: { user_id: userId },
     } = req;
@@ -46,4 +47,25 @@ const createReport = async (
   }
 };
 
-export { getAllUsers, checkEmailExistence, createReport };
+const changeUserIsBlocked = async (
+  req: Request<{ user_id: string }, {}, {}>,
+  res: Response,
+  next: NextFunction
+) => {
+  // TODO add schema
+  try {
+    const {
+      params: { user_id: userId },
+    } = req;
+
+    await ReportService.changeUserIsBlocked({
+      userId: Number(userId),
+      input: { ...req.body },
+    });
+    res.status(200).json({ status: "success" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export { getAllUsers, checkEmailExistence, createReport, changeUserIsBlocked };

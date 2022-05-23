@@ -5,7 +5,7 @@ import { NotFoundError } from "../errors";
 class UserService {
   async getAllUsers() {
     const users = await User.findAll({
-      where: { role: "USER" },
+      where: { role: "USER", is_enabled: true },
       order: [["is_blocked", "DESC"]],
       attributes: ["user_id", "username", "email", "is_blocked"],
     });

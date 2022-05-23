@@ -26,6 +26,17 @@ class ReportService {
       declarer_user_id: declarerId,
     });
   }
+
+  async changeUserIsBlocked({ userId, input }: { userId: number; input: any }) {
+    const user = await User.findOne({
+      where: { user_id: userId, is_enabled: true },
+    });
+
+    if (!user) throw new NotFoundError("User not found");
+
+    user.is_blocked = input.is_blocked;
+    await user.save();
+  }
 }
 
 export default new ReportService();
