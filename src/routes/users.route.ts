@@ -3,6 +3,7 @@ import { adminPermission, userPermission } from "../middleware/permissions";
 import {
   getAllUsers,
   checkEmailExistence,
+  createReport,
 } from "../controllers/users.controller";
 import validateResource from "../middleware/validate-resource";
 import { checkUserEmailSchema } from "../schema/user.schema";
@@ -17,5 +18,7 @@ router.post(
   userPermission,
   checkEmailExistence
 );
+
+router.post("/:user_id", userPermission, createReport);
 
 export default router;

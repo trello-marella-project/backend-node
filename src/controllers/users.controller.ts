@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 
 import UserService from "../service/user.service";
 import { CheckUserEmailInput } from "../schema/user.schema";
+import ReportService from "../service/report.service";
 
 const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -25,4 +26,24 @@ const checkEmailExistence = async (
   }
 };
 
-export { getAllUsers, checkEmailExistence };
+const createReport = async (
+  req: Request<{ user_id: string }, {}, {}>,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const {
+      params: { user_id: userId },
+    } = req;
+    await ReportService.createReport({
+      accusedId: Number(userId),
+      declarerId: res.locals.user.user_id,
+      input: { ...req.body },
+    });
+    res.status(200).json({ status: "success" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export { getAllUsers, checkEmailExistence, createReport };
